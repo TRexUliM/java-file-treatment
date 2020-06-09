@@ -20,26 +20,34 @@ public class Program {
 		String pathOut = sourceFile.getParent() + "\\out";
 
 		boolean success = new File(pathOut).mkdir();
+		if (success) {
+			System.out.println("(i) Directory created");
+		} else {
+			System.out.println("(i) Directory already exists");
+		}
+		
 		String targetFile = pathOut + "\\summary.csv";
-
-		List<Product> list = new ArrayList<>();
-
+		
+		boolean addRecordsAtEOF = false;
+		
 		try (BufferedReader br = new BufferedReader(new FileReader(pathIn))) {
 			String line = br.readLine();
 			while (line != null) {
 				String[] record = line.split(",");
-				list.add(new Product(record[0], Double.parseDouble(record[1]), Integer.parseInt(record[2])));
+				
+				Product product = new Product(record[0], Double.parseDouble(record[1]), Integer.parseInt(record[2]));
+				
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(targetFile, addRecordsAtEOF))) {
+					bw.write(product.toString());
+					bw.newLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				addRecordsAtEOF = true;
+
 				line = br.readLine();
 			}
 
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(targetFile, false))) {
-				for (Product record : list) {
-					bw.write(record.toString());
-					bw.newLine();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
